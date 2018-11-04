@@ -1,0 +1,13 @@
+class Main {
+    static void main() {
+    	int [][] a;
+    	//a=[1,2,3];
+    	a=[[1],[2],[3]];
+    	bool [] b;
+    	b=[true,true,false];
+    	string [] c;
+    	c=["hello","world"];
+    	int [] d;
+    	d=[];
+	}
+}
