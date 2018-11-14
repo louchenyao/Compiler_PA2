@@ -48,7 +48,7 @@ def main():
             info = 'OK :)'
         else:
             info = 'ERROR!'
-            os.system('diff result/%s.result output/%s.result' % (bname, bname))
+            # os.system('diff result/%s.result output/%s.result' % (bname, bname))
         print('{0:<30}{1}'.format(name,info))
     if os.name == 'nt':
         print('Press Enter to continue...')
