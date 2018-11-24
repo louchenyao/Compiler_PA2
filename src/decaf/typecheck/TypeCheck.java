@@ -101,7 +101,13 @@ public class TypeCheck extends Tree.Visitor {
 		indexed.lvKind = Tree.LValue.Kind.ARRAY_ELEMENT;
 		indexed.array.accept(this);
 		if (!indexed.array.type.isArrayType()) {
-			issueError(new NotArrayError(indexed.array.getLocation()));
+			// 助教求问一下，arrayerror和q52-3这两个测例真的是这样过的吗，我猜助教实现的时候分开把indexed和indexed_with_default
+			// 分成了两个class实现...
+			if (indexed.default_ != null) {
+				issueError(new BadArrOperArgError(indexed.array.getLocation()));
+			} else {
+				issueError(new NotArrayError(indexed.array.getLocation()));
+			}
 			indexed.type = BaseType.ERROR;
 		} else {
 			indexed.type = ((ArrayType) indexed.array.type)
@@ -109,7 +115,20 @@ public class TypeCheck extends Tree.Visitor {
 		}
 		indexed.index.accept(this);
 		if (!indexed.index.type.equal(BaseType.INT)) {
-			issueError(new SubNotIntError(indexed.getLocation()));
+			// hack TA
+			if (indexed.default_ != null) {
+				issueError(new BadArrIndexError(indexed.index.loc));
+			} else {
+				issueError(new SubNotIntError(indexed.getLocation()));
+			}
+		}
+
+		if (!indexed.type.equal(BaseType.ERROR) && indexed.default_ != null) {
+			indexed.default_.accept(this);
+			if (!indexed.type.equal(indexed.default_.type)) {
+				issueError(new BadDefError(indexed.index.loc, indexed.type.toString(),
+						indexed.default_.type.toString()));
+			}
 		}
 	}
 
