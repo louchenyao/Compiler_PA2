@@ -698,6 +698,69 @@ public abstract class Tree {
     }
 
     /**
+     * guard statement
+     */
+    public static class Guard extends Tree {
+
+        public Expr expr;
+        public Tree stmt;
+
+        public Guard(Expr expr, Tree stmt, Location loc) {
+            super(GUARD, loc);
+            this.expr = expr;
+            this.stmt = stmt;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitGuard(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println("guard");
+            pw.incIndent();
+            expr.printTo(pw);
+            stmt.printTo(pw);
+            pw.decIndent();
+        }
+    }
+
+    /**
+     * guards statement
+     */
+    public static class Guards extends Tree {
+
+        public List<Guard> glist;
+
+        public Guards(List<Guard> glist, Location loc) {
+            super(GUARDS, loc);
+            this.glist = glist;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitGuards(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+
+
+            pw.println("guarded");
+            pw.incIndent();
+            if (glist.isEmpty()) {
+                pw.println("<empty>");
+            } else {
+                for (Guard g: glist) {
+                    g.printTo(pw);
+                }
+            }
+            pw.decIndent();
+        }
+    }
+
+    /**
       * an expression statement
       * @param expr expression structure
       */
@@ -1417,6 +1480,10 @@ public abstract class Tree {
         public Visitor() {
             super();
         }
+
+        public void visitGuard(Guard that) { visitTree(that); }
+
+        public void visitGuards(Guards that) { visitTree(that); }
 
         public void visitScopy(Scopy that) {
             visitTree(that);

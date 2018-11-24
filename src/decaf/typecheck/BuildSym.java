@@ -236,6 +236,19 @@ public class BuildSym extends Tree.Visitor {
 	}
 
 	@Override
+	public void visitGuards(Tree.Guards guards) {
+		for (Tree.Guard g: guards.glist) {
+			g.accept(this);
+		}
+	}
+
+	@Override
+	public void visitGuard(Tree.Guard guard) {
+		guard.expr.accept(this);
+		guard.stmt.accept(this);
+	}
+
+	@Override
 	public void visitWhileLoop(Tree.WhileLoop whileLoop) {
 		if (whileLoop.loopBody != null) {
 			whileLoop.loopBody.accept(this);

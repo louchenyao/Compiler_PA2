@@ -460,6 +460,19 @@ public class TypeCheck extends Tree.Visitor {
 	}
 
 	@Override
+	public void visitGuards(Tree.Guards guards) {
+		for (Tree.Guard g: guards.glist) {
+			g.accept(this);
+		}
+	}
+
+	@Override
+	public void visitGuard(Tree.Guard guard) {
+		checkTestExpr(guard.expr);
+	}
+
+
+	@Override
 	public void visitPrint(Tree.Print printStmt) {
 		int i = 0;
 		for (Tree.Expr e : printStmt.exprs) {
