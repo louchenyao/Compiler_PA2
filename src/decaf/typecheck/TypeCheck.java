@@ -1,5 +1,6 @@
 package decaf.typecheck;
 
+import java.awt.desktop.SystemSleepEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -301,7 +302,10 @@ public class TypeCheck extends Tree.Visitor {
 
 	@Override
 	public void visitIdent(Tree.Ident ident) {
-		if (ident.owner == null) {
+		if (ident.var) {
+			ident.lvKind = Tree.LValue.Kind.UNKNOWN_VAR;
+			ident.type = BaseType.UNKNOWN;
+		} else if (ident.owner == null) {
 			Symbol v = table.lookupBeforeLocation(ident.name, ident
 					.getLocation());
 			if (v == null) {
@@ -416,7 +420,15 @@ public class TypeCheck extends Tree.Visitor {
 	public void visitAssign(Tree.Assign assign) {
 		assign.left.accept(this);
 		assign.expr.accept(this);
-		if (!assign.left.type.equal(BaseType.ERROR)
+//		System.out.println(assign.left);
+//		System.out.println(assign.left.lvKind);
+		if (assign.left.lvKind == Tree.LValue.Kind.UNKNOWN_VAR) {
+			Tree.Ident lv = (Tree.Ident) assign.left;
+			lv.type = assign.expr.type;
+			lv.symbol = new Variable(lv.name, assign.expr.type, lv.loc);
+			table.declare(lv.symbol);
+		} else
+			if (!assign.left.type.equal(BaseType.ERROR)
 				&& (assign.left.type.isFuncType() || !assign.expr.type
 						.compatible(assign.left.type))) {
 			issueError(new IncompatBinOpError(assign.getLocation(),

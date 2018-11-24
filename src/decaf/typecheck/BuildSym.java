@@ -135,6 +135,42 @@ public class BuildSym extends Tree.Visitor {
 	}
 
 	@Override
+	public void visitAssign(Tree.Assign assign) {
+		assign.left.accept(this);
+	}
+
+	@Override
+    public void visitIdent(Tree.Ident ident) {
+		//System.out.println(ident.var);
+	    if (!ident.var) return;
+
+//        if (varDef.type.type.equal(BaseType.VOID)) {
+//            issueError(new BadVarTypeError(varDef.getLocation(), varDef.name));
+//            // for argList
+//            varDef.symbol = new Variable(".error", BaseType.ERROR, varDef
+//                    .getLocation());
+//            return;
+//        }
+        Variable v = new Variable(ident.name, BaseType.UNKNOWN, ident.getLocation());
+        Symbol sym = table.lookup(ident.name, true);
+        //System.out.println(sym);
+        if (sym != null) {
+            if (table.getCurrentScope().equals(sym.getScope())) {
+                issueError(new DeclConflictError(v.getLocation(), v.getName(),
+                        sym.getLocation()));
+            } else if ((sym.getScope().isFormalScope() && table.getCurrentScope().isLocalScope() && ((LocalScope)table.getCurrentScope()).isCombinedtoFormal() )) {
+                issueError(new DeclConflictError(v.getLocation(), v.getName(),
+                        sym.getLocation()));
+            } else {
+                table.declare(v);
+            }
+        } else {
+            table.declare(v);
+        }
+        ident.symbol = v;
+    }
+
+	@Override
 	public void visitMethodDef(Tree.MethodDef funcDef) {
 		funcDef.returnType.accept(this);
 		Function f = new Function(funcDef.statik, funcDef.name,
