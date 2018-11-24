@@ -42,7 +42,6 @@ import decaf.utils.MiscUtils;
  *  @see Pretty
  */
 public abstract class Tree {
-
     /**
      * Toplevel nodes, of type TopLevel, representing entire source files.
      */
@@ -94,9 +93,15 @@ public abstract class Tree {
     public static final int FORLOOP = WHILELOOP + 1;
 
     /**
+     * For-loops, of type foreach.
+     */
+    public static final int FOREACHLOOP = FORLOOP + 1;
+
+
+    /**
      * Labelled statements, of type Labelled.
      */
-    public static final int LABELLED = FORLOOP + 1;
+    public static final int LABELLED = FOREACHLOOP + 1;
 
     /**
      * Synchronized statements, of type Synchonized.
@@ -144,9 +149,24 @@ public abstract class Tree {
     public static final int RETURN = CONTINUE + 1;
 
     /**
+     * Scopy statements, of type Scopy.
+     */
+    public static final int SCOPY = RETURN + 1;
+
+    /**
+     * Guard statements, of type Scopy.
+     */
+    public static final int GUARD = SCOPY + 1;
+
+    /**
+     * Guards statements, of type Scopy.
+     */
+    public static final int GUARDS = GUARD + 1;
+
+    /**
      * Throw statements, of type Throw.
      */
-    public static final int THROW = RETURN + 1;
+    public static final int THROW = GUARDS + 1;
 
     /**
      * Assert statements, of type Assert.
@@ -194,9 +214,24 @@ public abstract class Tree {
     public static final int INDEXED = TYPETEST + 1;
 
     /**
+     * SubArray
+     */
+    public static final int SUBARRAY = INDEXED + 1;
+
+    /**
+     * ARRAYCOMP
+     */
+    public static final int ARRAYCOMP = SUBARRAY + 1;
+
+    /**
+     * array concat
+     */
+    public static final int ARRAYCONCAT = ARRAYCOMP + 1;
+
+    /**
      * Selections, of type Select.
      */
-    public static final int SELECT = INDEXED + 1;
+    public static final int SELECT = ARRAYCONCAT + 1;
 
     /**
      * Simple identifiers, of type Ident.
@@ -209,13 +244,23 @@ public abstract class Tree {
     public static final int LITERAL = IDENT + 1;
 
     /**
+     * ArrayConstant
+     */
+    public static final int ARRAYCONSTANT = LITERAL + 1;
+
+    /**
+     * ArrayRepaeat
+     */
+    public static final int ARRAYREPEAT = ARRAYCONSTANT + 1;
+
+    /**
      * Basic type identifiers, of type TypeIdent.
      */
-    public static final int TYPEIDENT = LITERAL + 1;
+    public static final int TYPEIDENT = ARRAYREPEAT + 1;
 
     /**
      * Class types, of type TypeClass.
-     */    
+     */
     public static final int TYPECLASS = TYPEIDENT + 1;
 
     /**
@@ -354,6 +399,38 @@ public abstract class Tree {
     		pw.decIndent();
     	}
     }
+
+
+    /**
+     * scopy statement
+     */
+    public static class Scopy extends Tree {
+
+        public String id;
+        public Expr expr;
+
+        public Scopy(String id, Expr expr, Location loc) {
+            super(SCOPY, loc);
+            this.id = id;
+            this.expr = expr;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitScopy(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println("scopy");
+            pw.incIndent();
+            pw.println(id);
+            expr.printTo(pw);
+            pw.decIndent();
+        }
+    }
+
+
 
     public static class ClassDef extends Tree {
     	
@@ -1337,6 +1414,10 @@ public abstract class Tree {
 
         public Visitor() {
             super();
+        }
+
+        public void visitScopy(Scopy that) {
+            visitTree(that);
         }
 
         public void visitTopLevel(TopLevel that) {

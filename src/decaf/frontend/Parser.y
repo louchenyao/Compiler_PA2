@@ -33,15 +33,20 @@ import java.util.*;
 %token LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 %token '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
 %token ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
+%token REPEAT CONCAT GUARD_SPLIT ':' COMP_L COMP_R
+%token SCOPY SEALED VAR DEFAULT IN FOREACH
+
 
 %left OR
-%left AND 
+%left AND
 %nonassoc EQUAL NOT_EQUAL
+%right CONCAT
+%left REPEAT
 %nonassoc LESS_EQUAL GREATER_EQUAL '<' '>'
 %left  '+' '-'
-%left  '*' '/' '%'  
-%nonassoc UMINUS '!' 
-%nonassoc '[' '.' 
+%left  '*' '/' '%'
+%nonassoc UMINUS '!'
+%nonassoc '[' DEFAULT '.'
 %nonassoc ')' EMPTY
 %nonassoc ELSE
 
@@ -191,6 +196,7 @@ Stmt		    :	VariableDef
                 |	IfStmt
                 |	WhileStmt
                 |	ForStmt
+                |   ScopyStmt ';'
                 |	ReturnStmt ';'
                 |	PrintStmt ';'
                 |	BreakStmt ';'
@@ -368,7 +374,13 @@ ExprList        :	ExprList ',' Expr
 						$$.elist.add($1.expr);
                 	}
                 ;
-    
+
+ScopyStmt         :   SCOPY '(' IDENTIFIER ',' Expr ')'
+                    {
+                        $$.stmt = new Tree.Scopy($3.ident, $5.expr, $1.loc);
+                    }
+                ;
+
 WhileStmt       :	WHILE '(' Expr ')' Stmt
 					{
 						$$.stmt = new Tree.WhileLoop($3.expr, $5.stmt, $1.loc);

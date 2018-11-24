@@ -6,31 +6,8 @@ import java.util.Stack;
 
 import decaf.Driver;
 import decaf.Location;
+import decaf.error.*;
 import decaf.tree.Tree;
-import decaf.error.BadArgCountError;
-import decaf.error.BadArgTypeError;
-import decaf.error.BadArrElementError;
-import decaf.error.BadLengthArgError;
-import decaf.error.BadLengthError;
-import decaf.error.BadNewArrayLength;
-import decaf.error.BadPrintArgError;
-import decaf.error.BadReturnTypeError;
-import decaf.error.BadTestExpr;
-import decaf.error.BreakOutOfLoopError;
-import decaf.error.ClassNotFoundError;
-import decaf.error.DecafError;
-import decaf.error.FieldNotAccessError;
-import decaf.error.FieldNotFoundError;
-import decaf.error.IncompatBinOpError;
-import decaf.error.IncompatUnOpError;
-import decaf.error.NotArrayError;
-import decaf.error.NotClassError;
-import decaf.error.NotClassFieldError;
-import decaf.error.NotClassMethodError;
-import decaf.error.RefNonStaticError;
-import decaf.error.SubNotIntError;
-import decaf.error.ThisInStaticFuncError;
-import decaf.error.UndeclVarError;
 import decaf.frontend.Parser;
 import decaf.scope.ClassScope;
 import decaf.scope.FormalScope;
@@ -190,7 +167,7 @@ public class TypeCheck extends Tree.Visitor {
 					Tree.Expr e = iter2.next();
 					Type t2 = e.type;
 					if (!t2.equal(BaseType.ERROR) && !t2.compatible(t1)) {
-						issueError(new BadArgTypeError(e.getLocation(), i, 
+						issueError(new BadArgTypeError(e.getLocation(), i,
 								t2.toString(), t1.toString()));
 					}
 				}
@@ -243,7 +220,7 @@ public class TypeCheck extends Tree.Visitor {
 	public void visitExec(Tree.Exec exec){
 		exec.expr.accept(this);
 	}
-	
+
 	@Override
 	public void visitNewArray(Tree.NewArray newArrayExpr) {
 		newArrayExpr.elementType.accept(this);
@@ -495,6 +472,33 @@ public class TypeCheck extends Tree.Visitor {
 						.toString(i), e.type.toString()));
 			}
 		}
+	}
+
+	@Override
+	public  void visitScopy(Tree.Scopy scopyStmt) {
+		// TODO: avoid chain error?
+		String id = scopyStmt.id;
+		Tree.Expr e = scopyStmt.expr;
+		e.accept(this);
+
+		Symbol id_sym = table.lookup(id, true);
+		// ident is class
+		if (id_sym != null && id_sym.getType().isClassType()) {
+			// check id.type == e.type
+			if (!e.type.equal(BaseType.ERROR) && !id_sym.getType().equal(e.type)) {
+				issueError(new BadScopySrcError(scopyStmt.loc, id_sym.getType().toString(), e.type.toString()));
+			}
+		} else {
+			if (id_sym == null) {
+				issueError(new UndeclVarError(scopyStmt.loc, id));
+			} else { // id must not be class
+				issueError(new BadScopyArgError(scopyStmt.loc, "dst", id_sym.getType().toString()));
+			}
+			if (!e.type.equal(BaseType.ERROR) && !e.type.isClassType()) {
+				issueError(new BadScopyArgError(scopyStmt.loc, "src", e.type.toString()));
+			}
+		}
+
 	}
 
 	@Override
