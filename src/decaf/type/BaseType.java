@@ -1,5 +1,7 @@
 package decaf.type;
 
+import decaf.error.BadArgCountError;
+
 public class BaseType extends Type {
 
 	private final String typeName;

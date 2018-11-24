@@ -322,8 +322,10 @@ public abstract class Tree {
     public static final int MUL = MINUS + 1;
     public static final int DIV = MUL + 1;
     public static final int MOD = DIV + 1;
+    public static final int REPEAT = MOD + 1;
+    public static final int CONCAT = REPEAT + 1;
 
-    public static final int NULL = MOD + 1;
+    public static final int NULL = CONCAT + 1;
     public static final int CALLEXPR = NULL + 1;
     public static final int THISEXPR = CALLEXPR + 1;
     public static final int READINTEXPR = THISEXPR + 1;
@@ -1045,78 +1047,83 @@ public abstract class Tree {
    }
 
     /**
-      * A binary operation.
-      */
+     * A binary operation.
+     */
     public static class Binary extends Expr {
 
-    	public Expr left;
-    	public Expr right;
+        public Expr left;
+        public Expr right;
 
         public Binary(int kind, Expr left, Expr right, Location loc) {
             super(kind, loc);
-    		this.left = left;
-    		this.right = right;
+            this.left = left;
+            this.right = right;
         }
 
-    	private void binaryOperatorPrintTo(IndentPrintWriter pw, String op) {
-    		pw.println(op);
-    		pw.incIndent();
-    		left.printTo(pw);
-    		right.printTo(pw);
-    		pw.decIndent();
-    	}
+        private void binaryOperatorPrintTo(IndentPrintWriter pw, String op) {
+            pw.println(op);
+            pw.incIndent();
+            left.printTo(pw);
+            right.printTo(pw);
+            pw.decIndent();
+        }
 
-    	@Override
-    	public void accept(Visitor visitor) {
-    		visitor.visitBinary(this);
-    	}
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visitBinary(this);
+        }
 
-    	@Override
-    	public void printTo(IndentPrintWriter pw) {
-    		switch (tag) {
-    		case PLUS:
-    			binaryOperatorPrintTo(pw, "add");
-    			break;
-    		case MINUS:
-    			binaryOperatorPrintTo(pw, "sub");
-    			break;
-    		case MUL:
-    			binaryOperatorPrintTo(pw, "mul");
-    			break;
-    		case DIV:
-    			binaryOperatorPrintTo(pw, "div");
-    			break;
-    		case MOD:
-    			binaryOperatorPrintTo(pw, "mod");
-    			break;
-    		case AND:
-    			binaryOperatorPrintTo(pw, "and");
-    			break;
-    		case OR:
-    			binaryOperatorPrintTo(pw, "or");
-    			break;
-    		case EQ:
-    			binaryOperatorPrintTo(pw, "equ");
-    			break;
-    		case NE:
-    			binaryOperatorPrintTo(pw, "neq");
-    			break;
-    		case LT:
-    			binaryOperatorPrintTo(pw, "les");
-    			break;
-    		case LE:
-    			binaryOperatorPrintTo(pw, "leq");
-    			break;
-    		case GT:
-    			binaryOperatorPrintTo(pw, "gtr");
-    			break;
-    		case GE:
-    			binaryOperatorPrintTo(pw, "geq");
-    			break;
-    		}
-    	}
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            switch (tag) {
+                case PLUS:
+                    binaryOperatorPrintTo(pw, "add");
+                    break;
+                case MINUS:
+                    binaryOperatorPrintTo(pw, "sub");
+                    break;
+                case MUL:
+                    binaryOperatorPrintTo(pw, "mul");
+                    break;
+                case DIV:
+                    binaryOperatorPrintTo(pw, "div");
+                    break;
+                case MOD:
+                    binaryOperatorPrintTo(pw, "mod");
+                    break;
+                case AND:
+                    binaryOperatorPrintTo(pw, "and");
+                    break;
+                case OR:
+                    binaryOperatorPrintTo(pw, "or");
+                    break;
+                case EQ:
+                    binaryOperatorPrintTo(pw, "equ");
+                    break;
+                case NE:
+                    binaryOperatorPrintTo(pw, "neq");
+                    break;
+                case LT:
+                    binaryOperatorPrintTo(pw, "les");
+                    break;
+                case LE:
+                    binaryOperatorPrintTo(pw, "leq");
+                    break;
+                case GT:
+                    binaryOperatorPrintTo(pw, "gtr");
+                    break;
+                case GE:
+                    binaryOperatorPrintTo(pw, "geq");
+                    break;
+                case CONCAT:
+                    binaryOperatorPrintTo(pw, "array concat");
+                    break;
+                case REPEAT:
+                    binaryOperatorPrintTo(pw, "array repeat");
+                    break;
+            }
+        }
     }
-
     public static class CallExpr extends Expr {
 
     	public Expr receiver;

@@ -81,6 +81,8 @@ public abstract class BaseParser {
 			return ">";
 		case Tree.LT:
 			return "<";
+		case Tree.REPEAT:
+			return "repeat";
 		default:
 			return "unknow";
 		}
