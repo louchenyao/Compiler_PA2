@@ -209,6 +209,7 @@ Stmt		    :	VariableDef
                 |   GuardedStmt
                 |	WhileStmt
                 |	ForStmt
+                |   ForeachStmt
                 |   ScopyStmt ';'
                 |	ReturnStmt ';'
                 |	PrintStmt ';'
@@ -448,6 +449,26 @@ WhileStmt       :	WHILE '(' Expr ')' Stmt
 					}
                 ;
 
+ForeachStmt     :	FOREACH '(' Type IDENTIFIER IN Expr WhileBool ')' Stmt
+					{
+						$$.stmt = new Tree.ForeachLoop(false, $3.type, $4.ident, $6.expr, $7.expr, $9.stmt, $1.loc);
+					}
+                |	FOREACH '(' VAR IDENTIFIER IN Expr WhileBool ')' Stmt
+                 	{
+                 		$$.stmt = new Tree.ForeachLoop(true, null, $4.ident, $6.expr, $7.expr, $9.stmt, $1.loc);
+                 	}
+                ;
+
+WhileBool       :   WHILE Expr
+                    {
+                        $$.expr = $2.expr;
+                    }
+                |   /* empty */
+                    {
+                        $$ = new SemValue();
+                    }
+                ;
+                
 ForStmt         :	FOR '(' SimpleStmt ';' Expr ';'	SimpleStmt ')' Stmt
 					{
 						$$.stmt = new Tree.ForLoop($3.stmt, $5.expr, $7.stmt, $9.stmt, $1.loc);
