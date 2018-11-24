@@ -431,38 +431,40 @@ public abstract class Tree {
     }
 
 
-
     public static class ClassDef extends Tree {
-    	
-    	public String name;
-    	public String parent;
-    	public List<Tree> fields;
-    	public Class symbol;
 
-        public ClassDef(String name, String parent, List<Tree> fields,
-    			Location loc) {
-    		super(CLASSDEF, loc);
-    		this.name = name;
-    		this.parent = parent;
-    		this.fields = fields;
+        public boolean sealed;
+        public String name;
+        public String parent;
+        public List<Tree> fields;
+        public Class symbol;
+
+        public ClassDef(boolean sealed, String name, String parent, List<Tree> fields,
+                        Location loc) {
+            super(CLASSDEF, loc);
+            this.sealed = sealed;
+            this.name = name;
+            this.parent = parent;
+            this.fields = fields;
         }
 
-    	@Override
+        @Override
         public void accept(Visitor v) {
             v.visitClassDef(this);
         }
-        
-    	@Override
-    	public void printTo(IndentPrintWriter pw) {
-    		pw.println("class " + name + " "
-    				+ (parent != null ? parent : "<empty>"));
-    		pw.incIndent();
-    		for (Tree f : fields) {
-    			f.printTo(pw);
-    		}
-    		pw.decIndent();
-    	}
-   }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println((sealed ? "sealed " : "")
+                    + "class " + name + " "
+                    + (parent != null ? parent : "<empty>"));
+            pw.incIndent();
+            for (Tree f : fields) {
+                f.printTo(pw);
+            }
+            pw.decIndent();
+        }
+    }
 
     public static class MethodDef extends Tree {
     	

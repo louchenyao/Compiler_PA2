@@ -3,16 +3,8 @@ package decaf.typecheck;
 import java.util.Iterator;
 
 import decaf.Driver;
+import decaf.error.*;
 import decaf.tree.Tree;
-import decaf.error.BadArrElementError;
-import decaf.error.BadInheritanceError;
-import decaf.error.BadOverrideError;
-import decaf.error.BadVarTypeError;
-import decaf.error.ClassNotFoundError;
-import decaf.error.DecafError;
-import decaf.error.DeclConflictError;
-import decaf.error.NoMainClassError;
-import decaf.error.OverridingVarError;
 import decaf.scope.ClassScope;
 import decaf.scope.GlobalScope;
 import decaf.scope.LocalScope;
@@ -46,7 +38,7 @@ public class BuildSym extends Tree.Visitor {
 		program.globalScope = new GlobalScope();
 		table.open(program.globalScope);
 		for (Tree.ClassDef cd : program.classes) {
-			Class c = new Class(cd.name, cd.parent, cd.getLocation());
+			Class c = new Class(cd.name, cd.parent, cd.sealed, cd.getLocation());
 			Class earlier = table.lookupClass(cd.name);
 			if (earlier != null) {
 				issueError(new DeclConflictError(cd.getLocation(), cd.name,
@@ -55,6 +47,17 @@ public class BuildSym extends Tree.Visitor {
 				table.declare(c);
 			}
 			cd.symbol = c;
+		}
+
+		// check inheritance from sealed class
+		for (Tree.ClassDef cd : program.classes) {
+			Class c = cd.symbol;
+			if (c.getParent() != null) {
+				Class fa = c.getParent();
+				if (fa != null && fa.getSealed()) {
+					issueError(new BadSealedInherError(c.getLocation()));
+				}
+			}
 		}
 
 		for (Tree.ClassDef cd : program.classes) {

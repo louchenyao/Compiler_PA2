@@ -105,9 +105,9 @@ Type            :	INT
                 	}
                 ;
 
-ClassDef        :	CLASS IDENTIFIER ExtendsClause '{' FieldList '}'
+ClassDef        :	Sealed CLASS IDENTIFIER ExtendsClause '{' FieldList '}'
 					{
-						$$.cdef = new Tree.ClassDef($2.ident, $3.ident, $5.flist, $1.loc);
+						$$.cdef = new Tree.ClassDef($1.sealed, $3.ident, $4.ident, $6.flist, $2.loc);
 					}
                 ;
 
@@ -119,6 +119,18 @@ ExtendsClause	:	EXTENDS IDENTIFIER
                 	{
                 		$$ = new SemValue();
                 	}
+                ;
+
+Sealed          :   SEALED
+                    {
+                        $$.sealed = true;
+                        // System.out.println("found");
+                    }
+                |   /* empty */
+                    {
+                        $$.sealed = false;
+                        // System.out.println("not found");
+                    }
                 ;
 
 FieldList       :	FieldList VariableDef

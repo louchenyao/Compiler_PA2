@@ -27,6 +27,8 @@ public class SemValue {
 
 	public List<ClassDef> clist;
 
+	public boolean sealed;
+
 	/**
 	 * field list
 	 */

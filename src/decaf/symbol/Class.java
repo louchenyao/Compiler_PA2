@@ -22,6 +22,10 @@ public class Class extends Symbol {
 
 	private int size;
 
+	private boolean sealed;
+
+	public  boolean getSealed() { return sealed; }
+
 	public int getSize() {
 		return size;
 	}
@@ -46,9 +50,10 @@ public class Class extends Symbol {
 		this.numVar = numVar;
 	}
 
-	public Class(String name, String parentName, Location location) {
+	public Class(String name, String parentName, boolean sealed, Location location) {
 		this.name = name;
 		this.parentName = parentName;
+		this.sealed = sealed;
 		this.location = location;
 		this.order = -1;
 		this.check = false;
