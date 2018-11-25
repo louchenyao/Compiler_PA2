@@ -5,10 +5,11 @@ src/decaf/frontend/Parser.output
 *.DS_STORE
 *swp
 *doc
-*pdf
 *output/
 *S1/
 *S2/
 .idea
 out
 decaf_PA2_2018.iml
+submit.zip
+/report.pdf

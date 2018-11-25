@@ -1,0 +1,58 @@
+\documentclass{article}
+    \usepackage{amsthm, amsmath}
+    \usepackage{xeCJK}
+    \usepackage{algorithm}
+    \usepackage{algorithmicx}
+    \usepackage{algpseudocode}
+    \usepackage{hyperref}
+    \usepackage{listings}
+    
+    \title{编译原理: PA2}
+    \author{娄晨耀, 2016011343}
+    \date{}
+    
+    
+    \theoremstyle{plain}
+    \newtheorem{thm}{Theorem}
+    
+    \theoremstyle{definition}
+    \newtheorem{alg}{Algorithm}
+    
+    
+    \begin{document}
+    \maketitle
+
+    \section{类的浅复制的支持}
+
+    scopy 最复杂的地方是理解README 里面报错的顺序。否则的话很难写出和样例一样的报错。
+
+    \section{sealed 的支持}
+
+    在BuildSym 里面的visitTopLevel，当扫描完全部类的结构后再循环一遍全部的类，检查一下一个类的父亲是不是sealed。
+
+    \section{支持串行条件卫士}
+
+    一个技巧是利用checkTestExpr 这个函数来直接检查条件是否满足。没有其他难点。
+    
+    \section{支持简单的类型推导}
+
+    我把var x来当做Ident 来处理了。所以在BuildSym 的时候var x = 233; 这样的语句实际上是不会被访问的，需要注意访问一下Assign.left。然后判断如果是var就把VarDef 的逻辑抄过来就好。
+
+    在checkType 的时候，由visitAssign 来决定var 定义的变量类型。visitIdent 只是简单的设置成UNKNOW。这样对于a = var b + c; 这样的句子就会自动出现类型不匹配的错误了。
+    
+    \section{数组操作}
+    \subsection{数组初始化常量表达式}
+    这里我之前没有用Binary 来实现初始化操作，但是发现其实Binary 的报错可能就够用了。于是改写了之前的实现，改成Binary 里面新加一个 REPEAT 操作。
+    
+    \subsection{数组下标动态访问表达式}
+    其实我这里实现的时候是直接改的Tree 的 Indexed，所以可以利用visitIndexed 原有的代码。
+
+    遇到一个问题是一模一样的问题定义了不同的错误类型，怀疑是祖传代码里面助教实现的时候新建了一个Default 类，在判断错误的时候没有注意就多加了两个错误类。
+
+    \subsection{数组迭代语句}
+    这里遇到的主要问题是需要理解Scope 是如何实现以及如何利用。因为Block 会新开一个Scope，所以我按照README 上的做法直接把变量开到Block 的Scope里面了。
+
+    需要注意一个问题是如果在visitForeach 里面初始化了Block 的associatedScope，那么accept Block的时候就不要再初始化一遍。
+
+
+    \end{document}
